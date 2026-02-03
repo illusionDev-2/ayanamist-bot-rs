@@ -81,9 +81,11 @@ async fn main() -> Result<(), Error> {
                     other => {
                         if let Err(e) = poise::builtins::on_error(other).await {
                             let message = e.to_string();
-                            if message.contains("Interaction has already been acknowledged") {
+                            if message.contains("Interaction has already been acknowledged")
+                                || message.contains("Unknown interaction")
+                            {
                                 tracing::debug!(
-                                    "Skipped error reply because interaction was already acknowledged: {}",
+                                    "Skipped error reply for interaction response: {}",
                                     message
                                 );
                             } else {
