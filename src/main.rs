@@ -1,4 +1,5 @@
 mod config;
+mod proxy;
 mod verify;
 
 use poise::serenity_prelude as serenity;
@@ -56,7 +57,7 @@ async fn main() -> Result<(), Error> {
         serenity::GatewayIntents::non_privileged() | serenity::GatewayIntents::MESSAGE_CONTENT;
 
     let commands = {
-        let mut commands = vec![ping()];
+        let mut commands = vec![ping(), proxy::proxy_command()];
 
         // TODO: MANAGE_GUILDとBAN_MEMBERSなど複数のパーミッションを解釈できないがこれでいいのか？
         let captcha_perm = parse_permissions(&config.discord.captcha_default_permission);
@@ -90,7 +91,16 @@ async fn main() -> Result<(), Error> {
                 if let serenity::FullEvent::InteractionCreate { interaction } = event
                     && let serenity::Interaction::Component(comp) = interaction
                 {
-                    let _ = verify::captcha::handle_component(ctx, data, comp).await;
+                    let custom_id = comp.data.custom_id.as_str();
+                    let namespace = custom_id.split(':').next().unwrap_or("");
+
+                    match namespace {
+                        "captcha" => verify::captcha::handle_component(ctx, data, comp).await?,
+                        "proxy" => proxy::handle_component(ctx, data, comp).await?,
+                        _ => {
+                            tracing::warn!("unknown component: {}", custom_id);
+                        }
+                    }
                 }
                 Ok(())
             })
