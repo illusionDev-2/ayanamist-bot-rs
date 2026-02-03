@@ -31,20 +31,11 @@ fn parse_permissions(s: &str) -> serenity::Permissions {
         return serenity::Permissions::from_bits_truncate(bits);
     }
 
-    let upper = s.to_ascii_uppercase();
-    match upper.as_str() {
-        "ADMINISTRATOR" => serenity::Permissions::ADMINISTRATOR,
-        "MANAGE_GUILD" | "MANAGE_SERVER" => serenity::Permissions::MANAGE_GUILD,
-        "MANAGE_ROLES" => serenity::Permissions::MANAGE_ROLES,
-        "MANAGE_CHANNELS" => serenity::Permissions::MANAGE_CHANNELS,
-        "KICK_MEMBERS" => serenity::Permissions::KICK_MEMBERS,
-        "BAN_MEMBERS" => serenity::Permissions::BAN_MEMBERS,
-        "MODERATE_MEMBERS" | "TIMEOUT_MEMBERS" => serenity::Permissions::MODERATE_MEMBERS,
-        _ => {
-            tracing::warn!("Unknown permission value in config: {}", s);
-            serenity::Permissions::empty()
-        }
-    }
+    serenity::Permissions::from_name(&s.to_ascii_uppercase()).unwrap_or_else(|| {
+        tracing::warn!("Unknown permission value in config: {}", s);
+
+        serenity::Permissions::empty()
+    })
 }
 
 #[tokio::main]
@@ -144,4 +135,22 @@ async fn main() -> Result<(), Error> {
 
     client.start().await?;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use poise::serenity_prelude as serenity;
+
+    #[test]
+    fn it_works() {
+        assert_eq!(
+            parse_permissions("BAN_MEMBERS"),
+            serenity::Permissions::BAN_MEMBERS
+        );
+        assert_eq!(
+            parse_permissions("INVALID_PERMISSION_NAME"),
+            serenity::Permissions::empty()
+        );
+    }
 }
