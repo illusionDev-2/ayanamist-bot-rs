@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-pub mod captcha;
-=======
 use std::time::{Duration, Instant};
 
 use dashmap::DashMap;
@@ -266,4 +263,3 @@ async fn on_answer(
 
     Ok(())
 }
->>>>>>> be6c202 (Interaction fix)
