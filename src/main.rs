@@ -77,7 +77,9 @@ async fn main() -> Result<(), Error> {
                 match err {
                     poise::FrameworkError::CommandCheckFailed { .. } => {}
                     other => {
-                        poise::builtins::on_error(other).await;
+                        if let Err(e) = poise::builtins::on_error(other).await {
+                            tracing::error!("Fatal error while sending error message: {}", e);
+                        }
                     }
                 }
             })
