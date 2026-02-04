@@ -8,7 +8,7 @@ Ayanamistbot-tsのRustによる再実装
 ```bash
 git clone https://github.com/HaruSameee/ayanamist-bot-rs.git
 cd ayanamist-bot-rs
-cp config.example.toml config.toml
+cp config.toml.example config.toml
 cargo run
 ```
 
