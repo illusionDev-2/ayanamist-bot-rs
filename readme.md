@@ -6,7 +6,7 @@ Ayanamistbot-tsのRustによる再実装
 
 ### clone repo
 ```bash
-git clone https://github.com/yourname/ayanamist-bot-rs.git
+git clone https://github.com/HaruSameee/ayanamist-bot-rs.git
 cd ayanamist-bot-rs
 cp config.example.toml config.toml
 cargo run
