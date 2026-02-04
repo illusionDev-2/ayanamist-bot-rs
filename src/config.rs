@@ -1,5 +1,5 @@
 use serde::Deserialize;
-use std::fs;
+use std::{fs, time::Duration};
 
 pub type AnyError = Box<dyn std::error::Error + Send + Sync>;
 
@@ -23,7 +23,6 @@ fn default_captcha_perm() -> String {
     "MANAGE_GUILD".to_string()
 }
 
-
 #[derive(Debug, Clone, Deserialize)]
 pub struct Roles {
     pub verify: u64,
@@ -32,7 +31,9 @@ pub struct Roles {
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct Pokemon {
-    pub language: String,
+    pub max_retry: usize,
+    #[serde(with = "humantime_serde")]
+    pub time_limit: Duration,
 }
 
 impl Config {

@@ -1,12 +1,13 @@
 mod config;
 mod http;
+mod image;
 mod interaction;
+mod pokemon;
 mod proxy;
 mod verify;
 
-use poise::serenity_prelude as serenity;
-
 use config::Config;
+use poise::serenity_prelude as serenity;
 
 type Error = Box<dyn std::error::Error + Send + Sync>;
 type Context<'a> = poise::Context<'a, Data, Error>;
@@ -58,6 +59,7 @@ async fn main() -> Result<(), Error> {
             ping(),
             proxy::command::proxy(),
             proxy::command::proxycheck(),
+            pokemon::command::dareda(),
         ];
 
         // TODO: MANAGE_GUILDとBAN_MEMBERSなど複数のパーミッションを解釈できないがこれでいいのか？

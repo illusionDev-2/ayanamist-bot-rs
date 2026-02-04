@@ -8,5 +8,5 @@ verify = 2
 staff = 3
 
 [pokemon]
-language = "ja-Hrkt"
-
+max_retry = 5
+time_limit = "5 minutes"

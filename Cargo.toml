@@ -27,3 +27,7 @@ parse_duration = "2.1.1"
 pokerust = "0.3.1"
 lru = "0.16.3"
 futures = "0.3.31"
+image = { version = "0.25.9" }
+webp = "0.3.1"
+humantime-serde = "1.1.1"
+wana_kana = "4.0.0"
