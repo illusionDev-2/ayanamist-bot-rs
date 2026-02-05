@@ -10,6 +10,7 @@ mod verify;
 
 use config::Config;
 use poise::serenity_prelude as serenity;
+use std::env;
 
 type Error = Box<dyn std::error::Error + Send + Sync>;
 type Context<'a> = poise::Context<'a, Data, Error>;
@@ -44,11 +45,15 @@ fn parse_permissions(s: &str) -> serenity::Permissions {
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
+    // TODO: .expect()また.ok()にする
+    dotenvy::dotenv().unwrap();
+
     tracing_subscriber::fmt::init();
 
     let config = Config::load().map_err(|e| format!("config.toml の読み込みに失敗: {e}"))?;
 
-    let token = config.discord.token.clone();
+    // TODO: .expect()にする
+    let token = env::var("DISCORD_BOT_TOKEN").unwrap();
     let guild_id = serenity::GuildId::new(config.discord.guild_id);
 
     let config_for_setup = config.clone();

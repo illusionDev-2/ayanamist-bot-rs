@@ -1,5 +1,4 @@
 [discord]
-token = ""
 guild_id = 1
 captcha_default_permission = "MANAGE_GUILD"
 

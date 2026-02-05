@@ -14,7 +14,6 @@ pub struct Config {
 
 #[derive(Debug, Clone, serde::Deserialize)]
 pub struct Discord {
-    pub token: String,
     pub guild_id: u64,
 
     #[serde(default = "default_captcha_perm")]
