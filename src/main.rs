@@ -1,3 +1,4 @@
+mod bot;
 mod config;
 mod greeter;
 mod http;
@@ -19,13 +20,6 @@ struct Data {
     config: Config,
 }
 
-/// pong
-#[poise::command(slash_command, guild_only)]
-async fn ping(ctx: Context<'_>) -> Result<(), Error> {
-    ctx.say("pong 🦀").await?;
-    Ok(())
-}
-
 #[tokio::main]
 async fn main() -> Result<(), Error> {
     // TODO: .expect()また.ok()にする
@@ -45,12 +39,12 @@ async fn main() -> Result<(), Error> {
 
     let commands = {
         let mut commands = vec![
-            ping(),
+            bot::command::ping(),
             proxy::command::proxy(),
             proxy::command::proxycheck(),
             pokemon::command::dareda(),
-            madomagi::dj(),
-            madomagi::sayakais(),
+            madomagi::command::dj(),
+            madomagi::command::sayakais(),
         ];
 
         let captcha_perm = serenity::Permissions::from_name(
@@ -61,7 +55,7 @@ async fn main() -> Result<(), Error> {
                 .to_ascii_uppercase(),
         )
         .unwrap_or(serenity::Permissions::ADMINISTRATOR);
-        let mut captcha_command = verify::captcha::captcha();
+        let mut captcha_command = verify::command::captcha();
 
         captcha_command.default_member_permissions = captcha_perm;
 
@@ -77,7 +71,7 @@ async fn main() -> Result<(), Error> {
         event_handler: |ctx, event, _framework: poise::FrameworkContext<'_, Data, _>, data| {
             Box::pin(async move {
                 if let serenity::FullEvent::GuildMemberAddition { new_member } = event {
-                    greeter::handle_member_add(ctx, data, new_member).await?;
+                    greeter::handler::handle_member_add(ctx, data, new_member).await?;
                 }
 
                 if let serenity::FullEvent::InteractionCreate { interaction } = event
@@ -87,7 +81,7 @@ async fn main() -> Result<(), Error> {
                     let namespace = custom_id.split(':').next().unwrap_or("");
 
                     match namespace {
-                        "captcha" => verify::captcha::handle_component(ctx, data, comp).await?,
+                        "captcha" => verify::handler::handle_component(ctx, data, comp).await?,
                         "proxy" => proxy::handler::handle_component(ctx, data, comp).await?,
                         _ => {
                             tracing::warn!("unknown component: {}", custom_id);
