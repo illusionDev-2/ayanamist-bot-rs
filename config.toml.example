@@ -1,12 +1,10 @@
 [guild]
-id = 1
+guild_id = 1
+staff_role_id = 3
 
-[captcha]
-default_permission = "MANAGE_GUILD"
-
-[roles]
-verify = 2
-staff = 3
+[verify]
+captcha_default_permission = "MANAGE_GUILD"
+verify_role_id = 2
 
 [pokemon]
 max_retry = 5

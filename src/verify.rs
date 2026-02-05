@@ -1,13 +1,10 @@
-use std::time::{Duration, Instant};
-
+use crate::{Context, Data, Error};
 use dashmap::DashMap;
 use once_cell::sync::Lazy;
 use poise::serenity_prelude as serenity;
-use rand::seq::SliceRandom;
 use rand::Rng;
-
-use crate::interaction::respond_component;
-use crate::{Context, Data, Error};
+use rand::seq::SliceRandom;
+use std::time::{Duration, Instant};
 
 const START_ID: &str = "captcha:start";
 const ANSWER_PREFIX: &str = "captcha:ans:";
@@ -32,19 +29,13 @@ struct Challenge {
 
 static CHALLENGES: Lazy<DashMap<serenity::UserId, Challenge>> = Lazy::new(DashMap::new);
 
-fn verify_role_id(data: &Data) -> serenity::RoleId {
-    serenity::RoleId::new(data.config.roles.verify)
-}
-
-fn staff_role_id(data: &Data) -> serenity::RoleId {
-    serenity::RoleId::new(data.config.roles.staff)
-}
-
 async fn is_staff(ctx: Context<'_>) -> Result<bool, Error> {
     let Some(member) = ctx.author_member().await else {
         return Ok(false);
     };
-    Ok(member.roles.contains(&staff_role_id(ctx.data())))
+    Ok(member
+        .roles
+        .contains(&ctx.data().config.guild.staff_role_id))
 }
 
 /// 認証パネルを設置
@@ -107,16 +98,16 @@ async fn on_start(
 
     if let Some(existing) = CHALLENGES.get(&user_id) {
         if Instant::now() <= existing.expires_at {
-            respond_component(
-                ctx,
-                interaction,
-                serenity::CreateInteractionResponse::Message(
-                    serenity::CreateInteractionResponseMessage::new()
-                        .content("すでに挑戦中です。")
-                        .ephemeral(true),
-                ),
-            )
-            .await?;
+            interaction
+                .create_response(
+                    ctx,
+                    serenity::CreateInteractionResponse::Message(
+                        serenity::CreateInteractionResponseMessage::new()
+                            .content("すでに挑戦中です。")
+                            .ephemeral(true),
+                    ),
+                )
+                .await?;
             return Ok(());
         }
         CHALLENGES.remove(&user_id);
@@ -162,17 +153,17 @@ async fn on_start(
         })
         .collect();
 
-    respond_component(
-        ctx,
-        interaction,
-        serenity::CreateInteractionResponse::Message(
-            serenity::CreateInteractionResponseMessage::new()
-                .embed(embed)
-                .components(vec![serenity::CreateActionRow::Buttons(buttons)])
-                .ephemeral(true),
-        ),
-    )
-    .await?;
+    interaction
+        .create_response(
+            ctx,
+            serenity::CreateInteractionResponse::Message(
+                serenity::CreateInteractionResponseMessage::new()
+                    .embed(embed)
+                    .components(vec![serenity::CreateActionRow::Buttons(buttons)])
+                    .ephemeral(true),
+            ),
+        )
+        .await?;
 
     Ok(())
 }
@@ -202,16 +193,16 @@ async fn on_answer(
             .description("もう一度やり直してください。")
             .footer(serenity::CreateEmbedFooter::new("Ayanamist System").icon_url(FOOTER_ICON_URL));
 
-        respond_component(
-            ctx,
-            interaction,
-            serenity::CreateInteractionResponse::Message(
-                serenity::CreateInteractionResponseMessage::new()
-                    .embed(embed)
-                    .ephemeral(true),
-            ),
-        )
-        .await?;
+        interaction
+            .create_response(
+                ctx,
+                serenity::CreateInteractionResponse::Message(
+                    serenity::CreateInteractionResponseMessage::new()
+                        .embed(embed)
+                        .ephemeral(true),
+                ),
+            )
+            .await?;
         return Ok(());
     }
 
@@ -224,16 +215,16 @@ async fn on_answer(
             .description("もう一度やり直してください。")
             .footer(serenity::CreateEmbedFooter::new("Ayanamist System").icon_url(FOOTER_ICON_URL));
 
-        respond_component(
-            ctx,
-            interaction,
-            serenity::CreateInteractionResponse::Message(
-                serenity::CreateInteractionResponseMessage::new()
-                    .embed(embed)
-                    .ephemeral(true),
-            ),
-        )
-        .await?;
+        interaction
+            .create_response(
+                ctx,
+                serenity::CreateInteractionResponse::Message(
+                    serenity::CreateInteractionResponseMessage::new()
+                        .embed(embed)
+                        .ephemeral(true),
+                ),
+            )
+            .await?;
         return Ok(());
     }
 
@@ -242,7 +233,9 @@ async fn on_answer(
     };
 
     let member = guild_id.member(ctx, user_id).await?;
-    member.add_role(ctx, verify_role_id(data)).await?;
+    member
+        .add_role(ctx, data.config.verify.verify_role_id)
+        .await?;
     CHALLENGES.remove(&user_id);
 
     let embed = serenity::CreateEmbed::new()
@@ -251,16 +244,16 @@ async fn on_answer(
         .description("ロールを付与しました。")
         .footer(serenity::CreateEmbedFooter::new("Ayanamist System").icon_url(FOOTER_ICON_URL));
 
-    respond_component(
-        ctx,
-        interaction,
-        serenity::CreateInteractionResponse::Message(
-            serenity::CreateInteractionResponseMessage::new()
-                .embed(embed)
-                .ephemeral(true),
-        ),
-    )
-    .await?;
+    interaction
+        .create_response(
+            ctx,
+            serenity::CreateInteractionResponse::Message(
+                serenity::CreateInteractionResponseMessage::new()
+                    .embed(embed)
+                    .ephemeral(true),
+            ),
+        )
+        .await?;
 
     Ok(())
 }

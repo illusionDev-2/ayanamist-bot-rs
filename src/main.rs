@@ -2,7 +2,6 @@ mod config;
 mod greeter;
 mod http;
 mod image;
-mod interaction;
 mod madomagi;
 mod pokemon;
 mod proxy;
@@ -56,8 +55,8 @@ async fn main() -> Result<(), Error> {
 
         let captcha_perm = serenity::Permissions::from_name(
             &config
-                .captcha
-                .default_permission
+                .verify
+                .captcha_default_permission
                 .trim()
                 .to_ascii_uppercase(),
         )
@@ -73,29 +72,7 @@ async fn main() -> Result<(), Error> {
 
     let options = poise::FrameworkOptions {
         commands,
-        // poiseの二重応答対策
-        on_error: |err: poise::FrameworkError<'_, Data, Error>| {
-            Box::pin(async move {
-                match err {
-                    poise::FrameworkError::CommandCheckFailed { .. } => {}
-                    other => {
-                        if let Err(e) = poise::builtins::on_error(other).await {
-                            let message = e.to_string();
-                            if message.contains("Interaction has already been acknowledged")
-                                || message.contains("Unknown interaction")
-                            {
-                                tracing::debug!(
-                                    "Skipped error reply for interaction response: {}",
-                                    message
-                                );
-                            } else {
-                                tracing::error!("Fatal error while sending error message: {}", e);
-                            }
-                        }
-                    }
-                }
-            })
-        },
+        on_error: |_err: poise::FrameworkError<'_, Data, Error>| Box::pin(async move {}),
 
         event_handler: |ctx, event, _framework: poise::FrameworkContext<'_, Data, _>, data| {
             Box::pin(async move {
@@ -133,7 +110,7 @@ async fn main() -> Result<(), Error> {
                 poise::builtins::register_in_guild(
                     ctx,
                     &framework.options().commands,
-                    config.guild.id,
+                    config.guild.guild_id,
                 )
                 .await?;
 

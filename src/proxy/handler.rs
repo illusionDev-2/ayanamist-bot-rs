@@ -1,4 +1,3 @@
-use crate::interaction::respond_component;
 use crate::{Data, Error};
 use poise::serenity_prelude as serenity;
 use regex::Regex;
@@ -49,9 +48,8 @@ async fn handle_download_start(
     i: &serenity::ComponentInteraction,
 ) -> Result<(), Error> {
     if read_embed_proxies(&i.message).is_none() {
-        respond_component(
+        i.create_response(
             ctx,
-            i,
             serenity::CreateInteractionResponse::Message(
                 serenity::CreateInteractionResponseMessage::new()
                     .content("このダウンロードに関連付けられたプロキシが取得できません")
@@ -73,9 +71,8 @@ async fn handle_download_start(
         .collect();
     let row = serenity::CreateActionRow::Buttons(buttons);
 
-    respond_component(
+    i.create_response(
         ctx,
-        i,
         serenity::CreateInteractionResponse::Message(
             serenity::CreateInteractionResponseMessage::new()
                 .content("Choose Download Type")
@@ -99,9 +96,8 @@ pub async fn handle_component(
         "proxy:download_start" => handle_download_start(ctx, i).await,
         id if id.starts_with("proxy:download:") => {
             let Some(typ) = id.strip_prefix("proxy:download:") else {
-                respond_component(
+                i.create_response(
                     ctx,
-                    i,
                     serenity::CreateInteractionResponse::Message(
                         serenity::CreateInteractionResponseMessage::new()
                             .content("不明なプロキシの種類です")
@@ -122,9 +118,8 @@ pub async fn handle_component(
             .await
             .and_then(|r| r.ok())
             .and_then(|m| read_embed_proxies(&m)) else {
-                respond_component(
+                i.create_response(
                     ctx,
-                    i,
                     serenity::CreateInteractionResponse::Message(
                         serenity::CreateInteractionResponseMessage::new()
                             .content("このダウンロードに関連付けられたプロキシが取得できません")
@@ -157,9 +152,8 @@ pub async fn handle_component(
                 "proxies.txt",
             );
 
-            respond_component(
+            i.create_response(
                 ctx,
-                i,
                 serenity::CreateInteractionResponse::Message(
                     serenity::CreateInteractionResponseMessage::new()
                         .content("Complete")
