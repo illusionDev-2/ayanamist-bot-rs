@@ -7,7 +7,7 @@ pub async fn handle_member_add(
     data: &Data,
     new_member: &serenity::Member,
 ) -> Result<(), Error> {
-    if new_member.guild_id != data.config.discord.guild_id {
+    if new_member.guild_id != data.config.guild.id {
         return Ok(());
     }
 

@@ -6,18 +6,22 @@ pub type AnyError = Box<dyn std::error::Error + Send + Sync>;
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct Config {
-    pub discord: Discord,
+    pub guild: Guild,
+    pub captcha: Captcha,
     pub roles: Roles,
     pub pokemon: Pokemon,
     pub greeter: Greeter,
 }
 
-#[derive(Debug, Clone, serde::Deserialize)]
-pub struct Discord {
-    pub guild_id: u64,
+#[derive(Debug, Clone, Deserialize)]
+pub struct Guild {
+    pub id: u64,
+}
 
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct Captcha {
     #[serde(default = "default_captcha_perm")]
-    pub captcha_default_permission: String,
+    pub default_permission: String,
 }
 
 #[derive(Debug, Clone, Deserialize)]

@@ -54,7 +54,7 @@ async fn main() -> Result<(), Error> {
 
     // TODO: .expect()にする
     let token = env::var("DISCORD_BOT_TOKEN").unwrap();
-    let guild_id = serenity::GuildId::new(config.discord.guild_id);
+    let guild_id = serenity::GuildId::new(config.guild.id);
 
     let config_for_setup = config.clone();
 
@@ -72,7 +72,7 @@ async fn main() -> Result<(), Error> {
         ];
 
         // TODO: MANAGE_GUILDとBAN_MEMBERSなど複数のパーミッションを解釈できないがこれでいいのか？
-        let captcha_perm = parse_permissions(&config.discord.captcha_default_permission);
+        let captcha_perm = parse_permissions(&config.captcha.default_permission);
         let mut captcha_command = verify::captcha::captcha();
 
         captcha_command.default_member_permissions = captcha_perm;

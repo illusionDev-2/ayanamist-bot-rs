@@ -1,6 +1,8 @@
-[discord]
-guild_id = 1
-captcha_default_permission = "MANAGE_GUILD"
+[guild]
+id = 1
+
+[captcha]
+default_permission = "MANAGE_GUILD"
 
 [roles]
 verify = 2
