@@ -35,8 +35,9 @@ async fn main() -> Result<(), Error> {
 
     let config_for_setup = config.clone();
 
-    let intents =
-        serenity::GatewayIntents::non_privileged() | serenity::GatewayIntents::MESSAGE_CONTENT;
+    let intents = serenity::GatewayIntents::non_privileged()
+        | serenity::GatewayIntents::MESSAGE_CONTENT
+        | serenity::GatewayIntents::GUILD_MEMBERS;
 
     let commands = {
         let mut commands = vec![
